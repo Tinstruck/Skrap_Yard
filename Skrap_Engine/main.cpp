@@ -1,7 +1,4 @@
-﻿// Skrap_Engine.cpp : Defines the entry point for the application.
-//
-
-#include "Skrap_Engine.h"
+﻿#include "Skrap_Engine.h"
 
 
 
@@ -93,10 +90,13 @@ int main()
 	GLuint VAO, VBO;
 	
 	//create vertex array object 
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+
 	//link vertex array object
 	glBindVertexArray(VAO);
+
 	// AFTER linking vertext array object link   
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -112,16 +112,22 @@ int main()
 
 	bool isWireframe = false;
 
+	//-------------------------------------------#
+	//mainloop, while window should NOT close, run 
+	//-------------------------------------------#
 
-	//mainloop
 	while (!glfwWindowShouldClose(window))
 	{
 
+	//-------------------------------------------#
+	//background sp init vao init and drawing 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-
+	//===========================================#
+	//IMPORTANT
+	//===========================================#
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
@@ -134,6 +140,12 @@ int main()
 		//COMENT OUT WHEN NOT NEEDED
 		ImGui::ShowDemoWindow();
 
+		if (ImGui::BeginMainMenuBar())
+		{
+			// top menu add anything important here 
+			
+			ImGui::EndMainMenuBar();
+		}
 
 		ImGui::Begin("Explorer");
 		ImGui::Text("Hello World");
@@ -149,7 +161,7 @@ int main()
 		ImGui::End();
 
 
-
+		// wireframe view i tought this'd be cool
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -157,8 +169,25 @@ int main()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
-		// Draw your triangle / meshes
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		ImGui::Begin("Viewport");
+		ImGui::GetMainViewport();
+		ImGui::Image((void*)(intptr_t)0, ImVec2(800, 600));
+		ImGui::End();
+
+
+
+
+
+
+
+
+
+
+
+
+		// Draw 
+		
 
 		ImGui::Render();
 
@@ -178,7 +207,7 @@ int main()
 
 
 
-
+	//cleanup
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
 	
