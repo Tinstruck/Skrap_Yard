@@ -37,16 +37,52 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+
+	// for each polygon in the shape created create template for a triangle holding a 
+	// part of that shape and disect it in little triangles 
+	
+	// 1- you get a 3d polygon lets say a cube 
+	// 2- each face on the cube and turn it into a triangle (metaphoricaly you have a cube)
+	// 3- each vertecie has its own coordinate so its as modifiable 
+
+
+	// 1st triangle 
+
+	float movex = 0.0f;
+	
+	float movey = 0.0f;
+	
+
+
+	float a1 = -0.5f;
+	float a2 = -0.5f;
+
+	float b1 = 0.5f;
+	float b2 = -0.5f;
+
+	float c1 = 0.0f;
+	float c2 = 0.5f;
+
+	a1 + movey;
+	b1 + movey;
+	c1 + movey;
+
+	a2 + movex;
+	b2 + movex;
+	c2 + movex;
+
+	
 	GLfloat vertices[] = {
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
-		};
+		a1, a2, 0.0f,
+		b1, b2, 0.0f,
+		c1, c2, 0.0f
+	};
 
 
-
+	//shaders
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos; \n"
+		"uniform vec2 uOffset;\n"
 		"void main()\n"
 		"{\n"
 	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
@@ -109,8 +145,11 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-
+	
 	bool isWireframe = false;
+
+	bool isdemowindowopen = false;
+
 
 	//-------------------------------------------#
 	//mainloop, while window should NOT close, run 
@@ -121,6 +160,8 @@ int main()
 
 	//-------------------------------------------#
 	//background sp init vao init and drawing 
+	//-------------------------------------------#
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
@@ -138,13 +179,45 @@ int main()
 
 		//DEBUG SHOW DEMO FOR NEW FRAMES
 		//COMENT OUT WHEN NOT NEEDED
-		ImGui::ShowDemoWindow();
+		if (isdemowindowopen) {
+
+			ImGui::ShowDemoWindow();
+
+		}
+		
 
 		if (ImGui::BeginMainMenuBar())
 		{
-			// top menu add anything important here 
+			if (ImGui::BeginMenu("debug"))
+			{
+				
+				ImGui::MenuItem("Demo Window", NULL, &isdemowindowopen);
+
+				ImGui::EndMenu(); 
+			}
+
+			// work on later
+
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New")) {
+					// new file
+				}
+				if (ImGui::MenuItem("Open")) {
+					// open file
+				}
+				if (ImGui::MenuItem("Save")) {
+					// save file
+				}
+				if (ImGui::MenuItem("Save As")) {
+					// save as file
+				}
+				ImGui::EndMenu();
 			
-			ImGui::EndMainMenuBar();
+
+		}
+
+		ImGui::EndMainMenuBar();
 		}
 
 		ImGui::Begin("Explorer");
@@ -153,6 +226,8 @@ int main()
 
 		ImGui::Begin("Properties");
 		ImGui::Checkbox("Wireframe Mode", &isWireframe);
+		ImGui::SliderFloat("Move X", &movex, -1.0f, 1.0f);
+		ImGui::SliderFloat("Move Y", &movey, -1.0f, 1.0f);
 		ImGui::End();
 
 		ImGui::Begin("Text Editor");
@@ -168,12 +243,6 @@ int main()
 		else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
-
-
-		ImGui::Begin("Viewport");
-		ImGui::GetMainViewport();
-		ImGui::Image((void*)(intptr_t)0, ImVec2(800, 600));
-		ImGui::End();
 
 
 
@@ -199,7 +268,7 @@ int main()
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 
-	}
+	};
 
 	
 
