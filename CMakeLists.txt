@@ -50,10 +50,12 @@ target_include_directories(Skrap_Engine PRIVATE
     Resources/glfw/include
     Resources/imgui
     Resources/imgui/backends
+    Resources
 )
 
 target_link_libraries(Skrap_Engine PRIVATE 
     glfw 
-    imgui 
+    imgui
     opengl32
+
 )

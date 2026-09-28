@@ -1,10 +1,6 @@
 ﻿#include "Skrap_Engine.h"
 
 
-
-
-
-
 int main()
 {
 	// initialize glfw
@@ -19,7 +15,7 @@ int main()
 	image.height = ICON_HEIGHT;
 	image.pixels = (unsigned char*)icon;
 
-
+	
 	;
 
 
@@ -36,56 +32,58 @@ int main()
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
+	//---------------------------------------------------#
+	//				   WORLD SUBSECTION
+	// -- this defines the world and the objects in it --
+	//---------------------------------------------------#
 
 
-	// for each polygon in the shape created create template for a triangle holding a 
-	// part of that shape and disect it in little triangles 
-	
-	// 1- you get a 3d polygon lets say a cube 
-	// 2- each face on the cube and turn it into a triangle (metaphoricaly you have a cube)
-	// 3- each vertecie has its own coordinate so its as modifiable 
+		float movex = 0.0f;
+		float movey = 0.0f;
+		float movez = 0.0f;
+
+		GLfloat x1 = -0.5f;
+		GLfloat y1 = -0.5f;
+		GLfloat z1 = 0.0f;
+		GLfloat x2 = 0.5f; 
+		GLfloat y2 = -0.5f;
+		GLfloat z2 = 0.0f;
+		GLfloat x3 = -0.5f;
+		GLfloat y3 = 0.5f;
+		GLfloat z3 = 0.0f;
 
 
-	// 1st triangle 
+		x1 + movex;
+		x2 + movex;
+		x3 + movex;
 
-	float movex = 0.0f;
-	
-	float movey = 0.0f;
-	
+		y1 + movey;
+		y2 + movey;
+		y3 + movey;
 
+		z1 + movez;
+		z2 + movez;
+		z3 + movez;
 
-	float a1 = -0.5f;
-	float a2 = -0.5f;
-
-	float b1 = 0.5f;
-	float b2 = -0.5f;
-
-	float c1 = 0.0f;
-	float c2 = 0.5f;
-
-	a1 + movey;
-	b1 + movey;
-	c1 + movey;
-
-	a2 + movex;
-	b2 + movex;
-	c2 + movex;
-
-	
 	GLfloat vertices[] = {
-		a1, a2, 0.0f,
-		b1, b2, 0.0f,
-		c1, c2, 0.0f
-	};
+			x1, y1, z1, // bottom left
+			 x2, y2, z2, // bottom right
+			 x3,  y3, z3, // top right
+		};
+
+
+
+
+	
 
 
 	//shaders
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos; \n"
-		"uniform vec2 uOffset;\n"
+		"uniform vec3 uOffset;\n"
 		"void main()\n"
 		"{\n"
-	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+	"gl_Position = vec4(aPos.x + uOffset.x, aPos.y + uOffset.y, aPos.z, 1.0);\n"
 		"}\0";
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor; \n"
@@ -119,7 +117,7 @@ int main()
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-
+	int uOffsetLoc = glGetUniformLocation(shaderProgram, "uOffset");
 
 	// buffer objects and vertex array objects
 
@@ -149,6 +147,13 @@ int main()
 	bool isWireframe = false;
 
 	bool isdemowindowopen = false;
+	bool isGLDebugWindowOpen = false;
+
+	//le triangle
+	bool isSelected = false;
+
+
+
 
 
 	//-------------------------------------------#
@@ -165,17 +170,28 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
+		// offset
+		glUniform3f(uOffsetLoc, movex, movey, movez);
 		glBindVertexArray(VAO);
-	//===========================================#
-	//IMPORTANT
-	//===========================================#
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+
+
+
+
+
+			
+		//input handling
+
+
+
+
+
+
 
 		//DEBUG SHOW DEMO FOR NEW FRAMES
 		//COMENT OUT WHEN NOT NEEDED
@@ -184,8 +200,19 @@ int main()
 			ImGui::ShowDemoWindow();
 
 		}
-		
 
+		if (isGLDebugWindowOpen) {
+			ImGui::Begin("GL Debug Window");
+			ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
+			ImGui::Text("OpenGL Renderer: %s", glGetString(GL_RENDERER));
+			ImGui::Text("OpenGL Vendor: %s", glGetString(GL_VENDOR));
+			ImGui::Text("OpenGL Shading Language Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+			ImGui::End();
+			ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
+
+		}
+		
+		// good for now
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("debug"))
@@ -193,7 +220,9 @@ int main()
 				
 				ImGui::MenuItem("Demo Window", NULL, &isdemowindowopen);
 
-				ImGui::EndMenu(); 
+				ImGui::MenuItem("GL debug window ", NULL, &isGLDebugWindowOpen);
+				
+				ImGui::EndMenu();
 			}
 
 			// work on later
@@ -221,13 +250,25 @@ int main()
 		}
 
 		ImGui::Begin("Explorer");
-		ImGui::Text("Hello World");
+		ImGui::Selectable("Triangle 1", &isSelected);
 		ImGui::End();
 
 		ImGui::Begin("Properties");
-		ImGui::Checkbox("Wireframe Mode", &isWireframe);
-		ImGui::SliderFloat("Move X", &movex, -1.0f, 1.0f);
-		ImGui::SliderFloat("Move Y", &movey, -1.0f, 1.0f);
+		if (isSelected) {
+			ImGui::Checkbox("Wireframe Mode", &isWireframe);
+			ImGui::Text("Triangle 1 Properties");
+			ImGui::Text("Position: (0.0, 0.0)");
+			ImGui::Text("Rotation: 0.0 degrees");
+			ImGui::Text("Scale: (1.0, 1.0)");
+
+			ImGui::SliderFloat("Move X", &movex, -1.0f, 1.0f);
+			ImGui::SliderFloat("Move Y", &movey, -1.0f, 1.0f);
+			ImGui::SliderFloat("Move Z", &movez, -1.0f, 1.0f);
+		}
+		else {
+			ImGui::Text("No object selected");
+		}
+
 		ImGui::End();
 
 		ImGui::Begin("Text Editor");
@@ -263,7 +304,7 @@ int main()
 		
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		// render background open gl context
-		// all i need is a cube    
+		   
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
