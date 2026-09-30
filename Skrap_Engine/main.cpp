@@ -18,6 +18,8 @@ int main()
 	
 
 
+
+
 	// window icon
 	GLFWwindow* window = glfwCreateWindow(WINwidth, WINheight, "Skrap Engine", NULL, NULL);
 	GLFWimage image;
@@ -31,6 +33,7 @@ int main()
 
 	//glfw create context
 	glfwMakeContextCurrent(window);
+
 	bool isGLADInitialized = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	//icon
@@ -53,13 +56,14 @@ int main()
 	glm::mat4 matrix = glm::lookAt(camera, Lookinghere, up);
 
 	GLfloat vertices[] =
-	{ //     COORDINATES     /        COLORS        /    TexCoord    /       NORMALS     //
-		-1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
-		-1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-		 1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-		 1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
+	{
+		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
+		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
+		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper corner
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
+		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner right
+		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner down
 	};
-
 
 	GLuint indices[] =
 	{
@@ -76,7 +80,10 @@ int main()
 	glViewport(0, 0, 1500, 800);
 
 
-	Shader ShaderProgram("default.vert", "default.frag");
+	Shader ShaderProgram(
+		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.vert)",
+		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.frag)"
+	);
 
 	VAO VAO1;
 	VAO1.Bind();
@@ -84,7 +91,8 @@ int main()
 	VBO VBO1(vertices, sizeof(vertices));
 	EBO EBO1(indices, sizeof(indices));
 
-	VAO1.LinkAttrib(VBO1, 0, NULL, NULL, NULL, NULL);
+	
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();

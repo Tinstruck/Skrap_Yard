@@ -1,8 +1,11 @@
 #include"shaderClass.h"
+#include <filesystem>
+#include <iostream>
 
 std::string get_file_contents(const char* filename)
 {
-
+	std::cout << "Trying to open: " << std::filesystem::absolute(filename) << std::endl;
+	std::cout << "Does file exist? " << (std::filesystem::exists(filename) ? "YES" : "NO") << std::endl;
 
 	std::ifstream in(filename, std::ios::binary);
 	if (in)
