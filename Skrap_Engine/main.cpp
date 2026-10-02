@@ -3,13 +3,25 @@
 
 int main()
 {
+	//variables 
+	int WINwidth = 1500;
+	int WINheight = 800;
+
+
+
+
+
+
+
 	// initialize glfw
 	bool  isInitialized = glfwInit();
 	
 
 
+
+
 	// window icon
-	GLFWwindow* window = glfwCreateWindow(1500, 800, "Skrap Engine", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WINwidth, WINheight, "Skrap Engine", NULL, NULL);
 	GLFWimage image;
 	image.width = ICON_WIDTH;
 	image.height = ICON_HEIGHT;
@@ -21,6 +33,7 @@ int main()
 
 	//glfw create context
 	glfwMakeContextCurrent(window);
+
 	bool isGLADInitialized = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	//icon
@@ -37,111 +50,59 @@ int main()
 	// -- this defines the world and the objects in it --
 	//---------------------------------------------------#
 
+	glm::vec3 camera = glm::vec3(0, 0, 3);
+	glm::vec3 up = glm::vec3(0, 1, 0);
+	glm::vec3 Lookinghere = glm::vec3(0, 0, 0);
+	glm::mat4 matrix = glm::lookAt(camera, Lookinghere, up);
 
-		float movex = 0.0f;
-		float movey = 0.0f;
-		float movez = 0.0f;
+	GLfloat vertices[] =
+	{
+		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
+		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
+		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper corner
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
+		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner right
+		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner down
+	};
 
-		GLfloat x1 = -0.5f;
-		GLfloat y1 = -0.5f;
-		GLfloat z1 = 0.0f;
-		GLfloat x2 = 0.5f; 
-		GLfloat y2 = -0.5f;
-		GLfloat z2 = 0.0f;
-		GLfloat x3 = -0.5f;
-		GLfloat y3 = 0.5f;
-		GLfloat z3 = 0.0f;
-
-
-		x1 + movex;
-		x2 + movex;
-		x3 + movex;
-
-		y1 + movey;
-		y2 + movey;
-		y3 + movey;
-
-		z1 + movez;
-		z2 + movez;
-		z3 + movez;
-
-	GLfloat vertices[] = {
-			x1, y1, z1, // bottom left
-			 x2, y2, z2, // bottom right
-			 x3,  y3, z3, // top right
-		};
-
-
-
-
-	
-
+	GLuint indices[] =
+	{
+		0, 1, 2,
+		0, 2, 3
+	};
 
 	//shaders
-	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos; \n"
-		"uniform vec2 uOffset;\n"
-		"void main()\n"
-		"{\n"
-	"gl_Position = vec4(aPos.x + uOffset.x, aPos.y + uOffset.y, aPos.z, 1.0);\n"
-		"}\0";
-	const char* fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor; \n"
-		"void main()\n"
-		"{\n"
-	"	FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-		"}\n\0";
+
 
 
 	gladLoadGL();
 
 	glViewport(0, 0, 1500, 800);
 
-	//vertex shader create
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	//fragment shader create
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
 
-	//shadere program create
-	GLuint shaderProgram = glCreateProgram();
+	Shader ShaderProgram(
+		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.vert)",
+		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.frag)"
+	);
 
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	VAO VAO1;
+	VAO1.Bind();
 
-	glLinkProgram(shaderProgram);
+	VBO VBO1(vertices, sizeof(vertices));
+	EBO EBO1(indices, sizeof(indices));
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	int uOffsetLoc = glGetUniformLocation(shaderProgram, "uOffset");
+	
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
+	VAO1.Unbind();
+	VBO1.Unbind();
+	EBO1.Unbind();
 
 	// buffer objects and vertex array objects
 
-	GLuint VAO, VBO;
+	GLuint VAO, VBO, EBO;
 	
 	//create vertex array object 
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	//link vertex array object
-	glBindVertexArray(VAO);
-
-	// AFTER linking vertext array object link   
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 
 	
 	bool isWireframe = false;
@@ -150,7 +111,7 @@ int main()
 	bool isGLDebugWindowOpen = false;
 
 	//le triangle
-	
+	bool isSelected = false;
 
 
 
@@ -169,10 +130,10 @@ int main()
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(shaderProgram);
-		// offset
-		glUniform2f(uOffsetLoc, movex, movey);
-		glBindVertexArray(VAO);
+		
+		ShaderProgram.Activate();
+		
+		VAO1.Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -250,11 +211,20 @@ int main()
 		}
 
 		ImGui::Begin("Explorer");
-		//ImGui::Selectable("Triangle 1", &isSelected);
-		ImGui::Text("geooegoegoeg");
+		ImGui::Selectable("Triangle 1", &isSelected);
 		ImGui::End();
-		
+
+		ImGui::Begin("Properties");
+		if (isSelected) {
 			ImGui::Checkbox("Wireframe Mode", &isWireframe);
+			ImGui::Text("Triangle 1 Properties");
+			ImGui::Text("Position: (0.0, 0.0)");
+			ImGui::Text("Rotation: 0.0 degrees");
+			ImGui::Text("Scale: (1.0, 1.0)");
+		}
+		else {
+			ImGui::Text("No object selected");
+		}
 
 		ImGui::End();
 
@@ -305,8 +275,10 @@ int main()
 
 
 	//cleanup
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
+	VAO1.Delete();
+	VBO1.Delete();
+	EBO1.Delete();
+	ShaderProgram.Delete();
 	
 
 

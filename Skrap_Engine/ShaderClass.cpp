@@ -1,0 +1,75 @@
+#include"shaderClass.h"
+#include <filesystem>
+#include <iostream>
+
+std::string get_file_contents(const char* filename)
+{
+	std::cout << "Trying to open: " << std::filesystem::absolute(filename) << std::endl;
+	std::cout << "Does file exist? " << (std::filesystem::exists(filename) ? "YES" : "NO") << std::endl;
+
+	std::ifstream in(filename, std::ios::binary);
+	if (in)
+	{
+		std::string contents;
+		in.seekg(0, std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0, std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		return(contents);
+	}
+	throw(errno);
+}
+
+Shader::Shader(const char* vertexFile, const char* fragmentFile)
+{
+	std::string vertexCode = get_file_contents(vertexFile);
+	std::string fragmentCode = get_file_contents(fragmentFile);
+
+	const char* vertexSource = vertexCode.c_str();
+	const char* fragmentSource = fragmentCode.c_str();
+
+
+
+
+
+
+
+	//vertex shader create
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glCompileShader(vertexShader);
+	//fragment shader create
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(fragmentShader);
+
+	//shadere program create
+	ID = glCreateProgram();
+
+	glAttachShader(ID, vertexShader);
+	glAttachShader(ID, fragmentShader);
+
+	glLinkProgram(ID);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+
+}
+	// shader activate 
+	void Shader::Activate()
+	{
+		glUseProgram(ID);
+	}
+
+	//shader delete
+	void Shader::Delete()
+	{
+		glDeleteProgram(ID);
+	}
+
+		
+
+
+
