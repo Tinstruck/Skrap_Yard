@@ -80,7 +80,7 @@ int main()
 	//shaders
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos; \n"
-		"uniform vec3 uOffset;\n"
+		"uniform vec2 uOffset;\n"
 		"void main()\n"
 		"{\n"
 	"gl_Position = vec4(aPos.x + uOffset.x, aPos.y + uOffset.y, aPos.z, 1.0);\n"
@@ -150,7 +150,7 @@ int main()
 	bool isGLDebugWindowOpen = false;
 
 	//le triangle
-	bool isSelected = false;
+	
 
 
 
@@ -171,7 +171,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 		// offset
-		glUniform3f(uOffsetLoc, movex, movey, movez);
+		glUniform2f(uOffsetLoc, movex, movey);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -250,24 +250,11 @@ int main()
 		}
 
 		ImGui::Begin("Explorer");
-		ImGui::Selectable("Triangle 1", &isSelected);
+		//ImGui::Selectable("Triangle 1", &isSelected);
+		ImGui::Text("geooegoegoeg");
 		ImGui::End();
-
-		ImGui::Begin("Properties");
-		if (isSelected) {
+		
 			ImGui::Checkbox("Wireframe Mode", &isWireframe);
-			ImGui::Text("Triangle 1 Properties");
-			ImGui::Text("Position: (0.0, 0.0)");
-			ImGui::Text("Rotation: 0.0 degrees");
-			ImGui::Text("Scale: (1.0, 1.0)");
-
-			ImGui::SliderFloat("Move X", &movex, -1.0f, 1.0f);
-			ImGui::SliderFloat("Move Y", &movey, -1.0f, 1.0f);
-			ImGui::SliderFloat("Move Z", &movez, -1.0f, 1.0f);
-		}
-		else {
-			ImGui::Text("No object selected");
-		}
 
 		ImGui::End();
 
