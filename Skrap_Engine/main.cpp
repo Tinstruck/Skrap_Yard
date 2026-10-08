@@ -3,6 +3,9 @@
 
 int main()
 {
+
+	std::cout << "Working Directory: " << std::filesystem::current_path() << std::endl;
+
 	//variables 
 	int WINwidth = 1500;
 	int WINheight = 800;
@@ -55,20 +58,32 @@ int main()
 	glm::vec3 Lookinghere = glm::vec3(0, 0, 0);
 	glm::mat4 matrix = glm::lookAt(camera, Lookinghere, up);
 
+	glm::vec3 veccol1 = glm::vec3(1.0f, 0.0f, 0.0f); // Red
+	glm::vec3 veccol2 = glm::vec3(0.0f, 1.0f, 0.0f); // Green
+	glm::vec3 veccol3 = glm::vec3(0.0f, 0.0f, 1.0f); // Blue
+
+
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper corner
-		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
-		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner right
-		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner down
+		-0.5f,	-0.5f * float(sqrt(3)) / 3, 0.0f,		 veccol1.r ,veccol1.g, veccol1.b, // Lower left corner
+
+		0.5f,	-0.5f * float(sqrt(3)) / 3, 0.0f,		 veccol2.r, veccol2.g, veccol2.b,// Lower right corner
+
+		0.0f,	0.5f * float(sqrt(3)) * 2 / 3, 0.0f,	 veccol3.r, veccol3.g, veccol3.b, // Upper corner
+
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,		 veccol1.r, veccol1.g, veccol1.b, // Inner left
+
+		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,		 veccol2.r, veccol2.g, veccol2.b, // Inner right
+
+		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,			 veccol3.r, veccol3.g, veccol3.b // Inner down
 	};
+
 
 	GLuint indices[] =
 	{
-		0, 1, 2,
-		0, 2, 3
+		0, 5, 3, 
+		3, 2, 4,
+		4, 1, 5
 	};
 
 	//shaders
@@ -80,10 +95,9 @@ int main()
 	glViewport(0, 0, 1500, 800);
 
 
-	Shader ShaderProgram(
-		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.vert)",
-		R"(C:\Users\Tudor_54ziysr\source\repos\Tinstruck\Skrap_Yard\Resources\Shaders\Default.frag)"
-	);
+
+	Shader ShaderProgram("../../../Resources/Shaders/Default.vert", "../../../Resources/Shaders/Default.frag");
+
 
 	VAO VAO1;
 	VAO1.Bind();
@@ -92,16 +106,18 @@ int main()
 	EBO EBO1(indices, sizeof(indices));
 
 	
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
 
-	// buffer objects and vertex array objects
+	// buffer objects and vertex buffer objects and element buffer objects
 
 	GLuint VAO, VBO, EBO;
 	
-	//create vertex array object 
+	
 
 
 	
@@ -112,6 +128,7 @@ int main()
 
 	//le triangle
 	bool isSelected = false;
+
 
 
 
@@ -221,6 +238,11 @@ int main()
 			ImGui::Text("Position: (0.0, 0.0)");
 			ImGui::Text("Rotation: 0.0 degrees");
 			ImGui::Text("Scale: (1.0, 1.0)");
+		
+			ImGui::ColorEdit3("Color", (float*)&veccol1);
+			ImGui::ColorEdit3("Color2", (float*)&veccol2);
+			ImGui::ColorEdit3("Color3", (float*)&veccol3);
+			
 		}
 		else {
 			ImGui::Text("No object selected");
@@ -244,7 +266,15 @@ int main()
 
 
 
-
+		GLfloat vertices[] =
+		{
+			-0.5f,	-0.5f * float(sqrt(3)) / 3, 0.0f,		 veccol1.r, veccol1.g, veccol1.b,
+			0.5f,	-0.5f * float(sqrt(3)) / 3, 0.0f,		 veccol2.r, veccol2.g, veccol2.b,
+			0.0f,	0.5f * float(sqrt(3)) * 2 / 3, 0.0f,	 veccol3.r, veccol3.g, veccol3.b,
+			-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,		 veccol1.r, veccol1.g, veccol1.b,
+			0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,		 veccol2.r, veccol2.g, veccol2.b,
+			0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,			 veccol3.r, veccol3.g, veccol3.b
+		};
 
 
 
@@ -254,14 +284,20 @@ int main()
 
 
 		// Draw 
-		
+		ImGui::Begin("Viewport");
+		ImGui::Image((void*)(intptr_t)0, ImVec2(800, 600), ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::End();
+		VBO1.Bind();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
 		ImGui::Render();
 
 		
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		// render background open gl context
-		   
+		  
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -272,7 +308,9 @@ int main()
 
 
 
-
+	
+	ShaderProgram.Activate();
+	VAO1.Bind();
 
 	//cleanup
 	VAO1.Delete();

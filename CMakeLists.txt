@@ -7,6 +7,7 @@ endif()
 
 
 
+
 project("Skrap_Yard" VERSION 1.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -69,3 +70,5 @@ target_link_libraries(Skrap_Engine PRIVATE
 )
 
 set_target_properties(Skrap_Engine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+file(COPY ${CMAKE_SOURCE_DIR}/Resources DESTINATION ${CMAKE_BINARY_DIR})
